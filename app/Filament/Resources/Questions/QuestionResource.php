@@ -15,30 +15,23 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class QuestionResource extends Resource
 {
     protected static ?string $model = Question::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQuestionMarkCircle;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquare3Stack3d;
 
-    protected static ?string $navigationLabel = 'Questions Database';
+    protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $modelLabel = 'Questions';
+    protected static string|UnitEnum|null $navigationGroup = 'Basis Data';
 
-    protected static ?string $pluralModelLabel = 'Questions';
+    protected static ?string $modelLabel = 'soal';
 
-    protected static ?string $slug = 'questions';
-
-    public static function getRecordTitle(Model|null $record): string|null
-    {
-        if (! $record) {
-            return null;
-        }
-
-        return 'Soal #' . $record->getKey();
-    }
+    protected static ?string $navigationLabel = 'Bank Soal';
 
     public static function form(Schema $schema): Schema
     {
@@ -65,10 +58,18 @@ class QuestionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListQuestions::route('/'),
+            'index' => ListQuestions::route('/'),
             'create' => CreateQuestion::route('/create'),
-            'view'   => ViewQuestion::route('/{record}'),
-            'edit'   => EditQuestion::route('/{record}/edit'),
+            'view' => ViewQuestion::route('/{record}'),
+            'edit' => EditQuestion::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

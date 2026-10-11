@@ -27,7 +27,7 @@ class UserResource extends Resource
     // ganti teks navigasi
     protected static ?string $navigationLabel = 'Akun Staff';
 
-    // ganti teks dari model 
+    // ganti teks dari model
     protected static ?string $modelLabel = 'staff';
 
     // ganti teks pada url (slug)

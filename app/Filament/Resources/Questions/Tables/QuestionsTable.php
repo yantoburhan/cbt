@@ -2,15 +2,15 @@
 
 namespace App\Filament\Resources\Questions\Tables;
 
-use App\Models\Subject;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class QuestionsTable
@@ -19,52 +19,28 @@ class QuestionsTable
     {
         return $table
             ->columns([
-                TextColumn::make('number')
-                    ->label('No.')
-                    ->rowIndex()
-                    ->width(40),
-
                 TextColumn::make('subject.name')
-                    ->label('Mata Pelajaran')
-                    ->badge()
-                    ->color('info')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('content')
-                    ->label('Soal')
-                    ->limit(60)
                     ->searchable(),
-
                 TextColumn::make('score')
-                    ->label('Skor')
-                    ->badge()
-                    ->color('warning')
-                    ->alignCenter()
-                    ->width(60)
+                    ->numeric()
                     ->sortable(),
-
                 IconColumn::make('is_active')
-                    ->label('Aktif')
                     ->boolean(),
-
+                TextColumn::make('deleted_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d F Y, H:i:s')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('subject_id')
-                    ->label('Filter Mata Pelajaran')
-                    ->options(Subject::pluck('name', 'id'))
-                    ->searchable(),
-
-                TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->placeholder('Semua')
-                    ->trueLabel('Aktif Saja')
-                    ->falseLabel('Nonaktif Saja'),
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -73,6 +49,8 @@ class QuestionsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

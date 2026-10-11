@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Questions\Schemas;
 
+use App\Models\Question;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -14,37 +15,40 @@ class QuestionInfolist
         return $schema
             ->components([
                 TextEntry::make('subject.name')
-                    ->label('Mata Pelajaran'),
-
+                    ->label('Subject'),
                 TextEntry::make('score')
-                    ->label('Skor')
-                    ->badge()
-                    ->color('warning'),
-
-                IconEntry::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean(),
-
+                    ->formatStateUsing(function ($state) {
+                        return $state . ' poin';
+                    }),
                 TextEntry::make('content')
-                    ->label('Isi Soal')
+                    ->label('Pertanyaan')
+                    ->html()
                     ->columnSpanFull(),
-
-                TextEntry::make('description')
-                    ->label('Pembahasan')
-                    ->placeholder('-')
-                    ->columnSpanFull(),
-
+                // pilihan jawaban
                 RepeatableEntry::make('answers')
-                    ->label('Pilihan Jawaban')
+                    ->label('Pilihan jawaban')
+                    ->columnSpanFull()
+                    ->columns()
                     ->schema([
                         TextEntry::make('text')
-                            ->label('Pilihan'),
+                            ->label('Deskripsi pilihan'),
                         IconEntry::make('is_correct')
-                            ->label('Benar')
-                            ->boolean(),
-                    ])
-                    ->columns(2)
+                            ->label('Benar?')
+                    ]),
+                TextEntry::make('description')
+                    ->placeholder('-')
                     ->columnSpanFull(),
+                IconEntry::make('is_active')
+                    ->boolean(),
+                TextEntry::make('deleted_at')
+                    ->dateTime()
+                    ->visible(fn (Question $record): bool => $record->trashed()),
+                TextEntry::make('created_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->dateTime()
+                    ->placeholder('-'),
             ]);
     }
 }

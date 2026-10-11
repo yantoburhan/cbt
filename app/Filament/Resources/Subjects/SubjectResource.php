@@ -14,8 +14,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -39,37 +39,36 @@ class SubjectResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Database';
+    protected static string|UnitEnum|null $navigationGroup = 'Basis Data';
 
-    protected static ?string $modelLabel = 'Subjects';
+    protected static ?string $modelLabel = 'pelajaran';
 
-    protected static ?string $navigationLabel = 'Subjects Database';
+    protected static ?string $navigationLabel = 'Data Pelajaran';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required()
-                    ->unique('subjects', 'name')
-                    ->label('Subject Name')
+                    ->label('Mata pelajaran')
+                    ->placeholder('Nama mata pelajaran')
                     ->columnSpanFull()
-                    ->placeholder('Chemistry'),
+                    ->unique('subjects', 'name')
+                    ->required(),
                 Textarea::make('description')
-                    ->default(null)
-                    ->label('Description')
-                    ->placeholder('This subject is about chemistry')
+                    ->label('Deskripsi')
+                    ->placeholder('Keterangan tambahan')
                     ->columnSpanFull(),
                 Toggle::make('is_active')
-                    ->inline(false)
-                    ->label('Active')
+                    ->label('Tersedia')
                     ->default(true)
+                    ->inline(false)
                     ->live()
                     ->helperText(
                         fn ($state) => $state
-                        ? 'This subject is can be used in the examination'
-                        : 'This subject is cannot be used in the examination'),
-                    // ->helperText('The active subject can be used in the examination.'),
+                            ? 'Pelajaran ini tersedia untuk diujiankan.'
+                            : 'Pelajaran ini tidak tersedia untuk diujiankan.'
+                    ),
             ]);
     }
 
@@ -78,21 +77,25 @@ class SubjectResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('name')
-                    ->label('Subject Name'),
+                    ->label('Nama mata pelajaran'),
                 IconEntry::make('is_active')
-                    ->label('Active')
+                    ->label('Tersedia')
                     ->boolean(),
                 TextEntry::make('description')
-                    ->label('Description')
-                    ->placeholder('-'),
+                    ->label('Keterangan')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
                 TextEntry::make('deleted_at')
-                    ->dateTime()
+                    ->label('Dihapus')
+                    ->dateTime('d F Y, H:i:s')
                     ->visible(fn (Subject $record): bool => $record->trashed()),
                 TextEntry::make('created_at')
-                    ->dateTime('d F Y H:i:s')
+                    ->label('Dibuat')
+                    ->dateTime('d F Y, H:i:s')
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
-                    ->dateTime('d F Y H:i:s')
+                    ->label('Diubah')
+                    ->dateTime('d F Y, H:i:s')
                     ->placeholder('-'),
             ]);
     }
@@ -103,37 +106,37 @@ class SubjectResource extends Resource
             ->recordTitleAttribute('name')
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('No')
+                TextColumn::make('#')
                     ->rowIndex()
-                    ->width('40'),
+                    ->width(40),
                 TextColumn::make('name')
-                    ->label('Subject Name')
+                    ->label('Pelajaran')
                     ->searchable(),
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label('Tersedia')
                     ->boolean(),
                 TextColumn::make('deleted_at')
-                    ->label('Deleted At')
-                    ->dateTime('d/m/Y')
+                    ->label('Dihapus')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->dateTime('d/m/Y')
+                    ->label('Dibuat')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Updated At')
-                    ->dateTime('d/m/Y')
+                    ->label('Diubah')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Subject Status')
-                    ->placeholder('Select Subject Status')
-                    ->trueLabel('Active')
-                    ->falseLabel('Inactive')
+                    ->label('Status pelajaran')
+                    ->placeholder('Pilih salah satu')
+                    ->trueLabel('Tersedia')
+                    ->falseLabel('Tidak tersedia')
                     ->native(false),
                 TrashedFilter::make()
                     ->native(false),

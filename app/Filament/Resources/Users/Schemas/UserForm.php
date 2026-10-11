@@ -17,47 +17,54 @@ class UserForm
         return $schema
             ->components([
                 Section::make()
-                ->columns(2)
-                ->columnSpanFull()
-                ->schema([
-                    // upload foto
-                    FileUpload::make('photo_path')
-                        ->label('Upload foto profil')
-                        ->image() // khusus upload gambar
-                        ->avatar()  // rezise otomatis dan circular
-                        ->disk('public') // partisi storage
-                        ->directory('user-photos') // nama folder
-                        ->maxSize(1024) // ukuran max 1 mb
-                        ->imageEditor()
-                        ->columnSpanFull()
-                        ->aligncenter(),
-                    TextInput::make('name')
-                    ->label('Nama Lengkap')
-                    ->required()
-                    ->columnSpanFull(),
-                    TextInput::make('email')
-                        ->label('Email address')
-                        ->unique('users', 'email')
-                        ->prefix('@')
-                        ->email(),
-                    TextInput::make('username')
-                        ->label('Login Username')
-                        ->unique(
-                            table: 'users',
-                            column: 'username'
-                        )
-                        ->placeholder('Digunakan untuk login Akun')
-                        ->required(),
-                    TextInput::make('phone')
-                        ->label('Nomor Telepon')
-                        ->prefixIcon(Heroicon::OutlinedPhone)
-                        ->tel(),
-                    TextInput::make('password')
-                        ->hiddenOn('edit')  //disembunyikan di halaman edit
-                        ->revealable() //tampilkan password
-                        ->password()
-                        ->required(),
-                ])
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->schema([
+                        // upload foto
+                        FileUpload::make('photo_path')
+                            ->label('Upload foto profil')
+                            ->hiddenLabel()
+                            ->image()   // khusus upload gambar
+                            ->avatar()  // resize otomatis dan circular
+                            ->disk('public')    // partisi storage
+                            ->directory('user-photos')  // nama folder
+                            ->maxSize(1024) // ukuran max 1MB
+                            ->imageEditor()
+                            ->columnSpanFull()
+                            ->alignCenter(),
+                        TextInput::make('name')
+                            ->label('Nama lengkap')
+                            ->required()
+                            ->columnSpanFull(),
+                        TextInput::make('email')
+                            ->label('Alamat email')
+                            ->unique('users', 'email')
+                            ->prefix('@')
+                            ->email(),
+                        TextInput::make('username')
+                            ->label('Login username')
+                            // harus unique dengan user yang lain
+                            ->unique(
+                                table: 'users',
+                                column: 'username',
+                            )
+                            ->placeholder('Digunakan untuk login akun')
+                            ->helperText('Username harus unik.')
+                            ->required(),
+                        TextInput::make('phone')
+                            ->label('Nomor telepon')
+                            // ->prefixIcon('heroicon-o-phone')
+                            ->prefixIcon(Heroicon::OutlinedPhone)
+                            ->tel(),
+
+                        TextInput::make('password')
+                            // disembunyikan di halaman edit
+                            ->hiddenOn('edit')
+                            // tampilkan password
+                            ->revealable()
+                            ->password()
+                            ->required(),
+                    ]),
             ]);
     }
 }

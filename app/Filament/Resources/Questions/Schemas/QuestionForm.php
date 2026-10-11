@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Questions\Schemas;
 
-use App\Models\Subject;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,57 +17,61 @@ class QuestionForm
     {
         return $schema
             ->components([
-                Section::make('Informasi Soal')
-                    ->columns(2)
+                Section::make()
+                    ->columns()
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('subject_id')
-                            ->label('Mata Pelajaran')
-                            ->options(Subject::query()->where('is_active', true)->pluck('name', 'id'))
-                            ->searchable()
+                            ->label('Pelajaran')
+                            ->relationship('subject', 'name')
+                            ->native(false)
+                            ->preload()
                             ->required(),
-
                         TextInput::make('score')
-                            ->label('Skor')
+                            ->label('Bobot nilai')
+                            ->required()
                             ->numeric()
                             ->default(1)
-                            ->minValue(1)
-                            ->required(),
-
-                        Textarea::make('content')
+                            ->minValue(0),
+                        // Bagian soal
+                        RichEditor::make('content')
                             ->label('Pertanyaan')
+                            ->fileAttachmentsDisk('public')
+                            ->fileAttachmentsDirectory('question-images')
                             ->required()
-                            ->rows(4)
                             ->columnSpanFull(),
-
                         Textarea::make('description')
-                            ->label('Deskripsi')
-                            ->nullable()
-                            ->rows(3)
+                            ->label('Keterangan tambahan')
                             ->columnSpanFull(),
-
                         Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->default(true),
+                            ->label('Aktif?')
+                            ->inline(false)
+                            ->default(true)
+                            ->required(),
                     ]),
 
-                Section::make('Pilihan Jawaban')
+                Section::make()
+                    ->columnSpanFull()
                     ->schema([
                         Repeater::make('answers')
-                            ->relationship('answers')
+                            ->relationship()
+                            ->label('Pilihan jawaban')
+                            ->addActionLabel('Tambah pilihan baru')
+                            ->reorderable()
+                            ->columns(2)
+                            ->minItems(2)
                             ->schema([
                                 TextInput::make('text')
-                                    ->label('Teks Pilihan')
+                                    ->label('Deskripsi pilihan')
                                     ->required()
-                                    ->columnSpan(2),
+                                    ->columnSpanFull(),
+                                Toggle::make('is_active')
+                                    ->label('Tersedia')
+                                    ->default(true),
                                 Toggle::make('is_correct')
-                                    ->label('Jawaban Benar')
-                                    ->default(false),
-                            ])
-                            ->columns(3)
-                            ->defaultItems(5)
-                            ->minItems(2)
-                            ->maxItems(5),
-                    ]),
-            ]);
+                                    ->label('Jawaban benar'),
+                            ]),
+                    ])
+                ]);
     }
 }
